@@ -39,7 +39,7 @@ app.MapPost(
     .WithOpenApi();
 
 app.MapPost(
-        "/reservate",
+        "/reserve",
         ([FromBody] ReservationRequestDto dto)
             => dto.AsReservation().WrapAsResult()
                 .ContinueWith(reservationService.TryReservate)
