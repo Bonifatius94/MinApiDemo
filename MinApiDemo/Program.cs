@@ -16,11 +16,6 @@ builder.Services.Configure<JsonOptions>(
         new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true)
     )
 );
-// builder.Services.Configure<JsonOptions>(
-//     options => options.JsonSerializerOptions.Converters.Add(
-//         new IsoDateTimeConverter("yyyy-MM-dd HH:mm:ss")
-//     )
-// );
 
 var restaurantRepository = new RestaurantRepository();
 
@@ -36,7 +31,7 @@ app.MapPost(
                 .ContinueWith(
                     r => r == OpeningState.Open
                         ? new Result<string>("restaurant is opened")
-                        : new Result<string>(new Exception("restaurant is closed"))
+                        : new Result<string>(ApiError.OfState(ApiErrorState.RestaurantIsClosed))
                 )
                 .AsHttpResult()
     )

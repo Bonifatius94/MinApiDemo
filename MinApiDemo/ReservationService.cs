@@ -16,7 +16,7 @@ public record RestaurantReservationService(
     public Result<TableReservation> TryReservate(ReservationRequest request)
     {
         if (IsOpened(request.Between) == OpeningState.Closed)
-            return new Result<TableReservation>(new Exception("Restaurant is closed"));
+            return new Result<TableReservation>(ApiError.OfState(ApiErrorState.RestaurantIsClosed));
 
         var tablesWithSufficientCapacity = Tables
             .Where(t => t.Capacity >= request.AmountOfPeople)
@@ -34,6 +34,6 @@ public record RestaurantReservationService(
 
         return reservation != null
             ? new Result<TableReservation>(reservation)
-            : new Result<TableReservation>(new Exception("Restaurant is closed"));
+            : new Result<TableReservation>(ApiError.OfState(ApiErrorState.InsufficientCapacity));
     }
 }
