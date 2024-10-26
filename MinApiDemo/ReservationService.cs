@@ -3,17 +3,19 @@ using LanguageExt.Common;
 
 namespace MinApiDemo;
 
+public enum OpeningState { Open, Closed }
+
 public record RestaurantReservationService(
     OpeningSchedule Schedule,
     IEnumerable<Table> Tables,
     IEnumerable<TableReservation> Reservations
 ) {
-    public bool IsOpened(Timespan between)
-        => Schedule.IsOpened(between);
+    public OpeningState IsOpened(Timespan between)
+        => Schedule.IsOpened(between) ? OpeningState.Open : OpeningState.Closed;
 
     public Result<TableReservation> TryReservate(ReservationRequest request)
     {
-        if (!IsOpened(request.Between))
+        if (IsOpened(request.Between) == OpeningState.Closed)
             return new Result<TableReservation>(new Exception("Restaurant is closed"));
 
         var tablesWithSufficientCapacity = Tables
