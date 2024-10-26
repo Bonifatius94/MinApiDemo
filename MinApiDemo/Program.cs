@@ -51,8 +51,7 @@ app.MapPost(
 
 app.Run();
 
-
-static class RestaurantRepoEx
+static class ResultMonadEx
 {
     public static Result<T> WrapAsResult<T>(this T orig)
         => new Result<T>(orig);
