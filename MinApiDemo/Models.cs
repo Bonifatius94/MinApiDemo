@@ -5,11 +5,14 @@ public record Table(
     int TableId,
     int Capacity
 ) {
-    public TableReservation Reservate(ReservationRequest request)
-        => new TableReservation(this, request.AmountOfPeople, request.Between, request.Reservator);
+    public TableReservation Reserve(ReservationRequest request)
+        => new TableReservation(
+            this, request.AmountOfPeople,
+            request.Between, request.Customer
+        );
 };
 
-public record Reservator(
+public record Customer(
     string Name,
     string Email,
     string Phone
@@ -18,22 +21,26 @@ public record Reservator(
 public record ReservationRequest(
     int AmountOfPeople,
     Timespan Between,
-    Reservator Reservator
+    Customer Customer
 );
 
 public record TableReservation(
     Table Table,
     int AmountOfPeople,
     Timespan Between,
-    Reservator Reservator
+    Customer Customer
 );
 
-public record Timespan(
-    DateTime From,
-    DateTime To
-) {
+public record Timespan(DateTime From, DateTime To) {
     public bool IsBetween(Timespan subSpan)
         => From <= subSpan.From && subSpan.To <= To;
+}
+
+public record TimespanOfDay(DayOfWeek Day, TimeOnly From, TimeOnly To) {
+    public bool IsBetween(Timespan subSpan)
+        => subSpan.From.DayOfWeek == Day
+            && From <= TimeOnly.FromDateTime(subSpan.From)
+            && (To == new TimeOnly(00, 00) || TimeOnly.FromDateTime(subSpan.To) <= To);
 }
 
 public interface IOpeningSchedule
@@ -41,9 +48,7 @@ public interface IOpeningSchedule
     bool IsOpened(Timespan between);
 }
 
-public record RegularSchedule(
-    IList<Timespan> Openings
-) : IOpeningSchedule {
+public record RegularSchedule(IList<TimespanOfDay> Openings) : IOpeningSchedule {
     public bool IsOpened(Timespan between)
         => Openings.Any(span => span.IsBetween(between));
 }
@@ -58,9 +63,7 @@ public record VacationDay(DateOnly Day) : IOpeningSchedule
             || Day == DateOnly.FromDateTime(between.To);
 }
 
-public record SpecialOpening(
-    Timespan Timespan
-) : IOpeningSchedule {
+public record SpecialOpening(Timespan Timespan) : IOpeningSchedule {
     public bool IsOpened(Timespan between)
         => Timespan.IsBetween(between);
 }

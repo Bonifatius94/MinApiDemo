@@ -47,7 +47,7 @@ public class ReservationRequestDto
         => new ReservationRequest(
             (int)Amount,
             new Timespan(From, To),
-            new Reservator(Name, Email, Phone)
+            new Customer(Name, Email, Phone)
         );
 }
 

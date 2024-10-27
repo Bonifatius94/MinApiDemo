@@ -30,7 +30,7 @@ public record RestaurantReservationService(
             .Where(t => reservationsWithinTimespan.Any(r => r.Table == t))
             .FirstOrDefault();
 
-        var reservation = freeTable?.Reservate(request);
+        var reservation = freeTable?.Reserve(request);
 
         return reservation != null
             ? new Result<TableReservation>(reservation)
