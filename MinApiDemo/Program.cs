@@ -5,6 +5,7 @@ using LanguageExt.Common;
 using Microsoft.AspNetCore.Mvc;
 using MinApiDemo;
 
+var restaurantRepository = new RestaurantRepository();
 var reservationService = ReservationServiceFactory.Create();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,8 +18,6 @@ builder.Services.Configure<JsonOptions>(
     )
 );
 
-var restaurantRepository = new RestaurantRepository();
-
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -28,11 +27,7 @@ app.MapPost(
         ([FromBody] OpeningTimespanDto dto) =>
             dto.AsTimespan().WrapAsResult()
                 .ContinueWith(reservationService.IsOpened)
-                .ContinueWith(
-                    r => r == OpeningState.Open
-                        ? new Result<string>("restaurant is opened")
-                        : new Result<string>(ApiError.OfState(ApiErrorState.RestaurantIsClosed))
-                )
+                .ContinueWith(r => r.ToString())
                 .AsHttpResult()
     )
     .WithName("Opening Schedule")
@@ -73,6 +68,6 @@ static class ResultMonadEx
     public static IResult AsHttpResult<TRes>(this Result<TRes> result)
         => result.Match(
             res => Results.Ok(res),
-            err => Results.BadRequest(err.Message)
+            err => Results.Problem(err.Message)
         );
 }
