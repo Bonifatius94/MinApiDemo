@@ -1,0 +1,21 @@
+name: build + test
+
+on:
+  push: [main]
+  pull_request: [main]
+
+jobs:
+  build:
+    steps:
+    - name: Git repo checkout
+      uses: actions/checkout@v4
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --runtime win-x64
+    - name: Test
+      run: dotnet test --no-cache --configuration Release --runtime win-x64
